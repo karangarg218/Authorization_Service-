@@ -1,10 +1,8 @@
-'use strict';
-const {SALT} = require('../config/serverConfig')
-const {
-  Model
-} = require('sequelize');
-const bcrypt = require('bcrypt'); 
-const {}=require('../config/serverConfig')
+"use strict";
+const { SALT } = require("../config/serverConfig");
+const { Model } = require("sequelize");
+const bcrypt = require("bcrypt");
+const {} = require("../config/serverConfig");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -16,37 +14,38 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  User.init({
-    email: {
-      type:DataTypes.STRING,
-      allowNull:false,
-      unique:true,
-      validate:{
-        isEmail:true
-      }
-    
+  User.init(
+    {
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          isEmail: true,
+        },
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          len: [3, 300],
+        },
+      },
     },
-    password: {
-      type:DataTypes.STRING,
-      allowNull:false,
-      validate:{
-        len:[3,300]
-      }
+    {
+      sequelize,
+      modelName: "User",
     }
+  );
 
-  }, {
-    sequelize,
-    modelName: 'User',
+  User.beforeCreate(async (user) => {
+    try {
+      const encryptedPassword = await bcrypt.hash(user.password, SALT);
+
+      user.password = encryptedPassword;
+    } catch (Err) {
+      throw new Error(`Error in hashing ${Err}`);
+    }
   });
-
-  User.beforeCreate(async (user)=>{
-   try{
-    const encryptedPassword = await bcrypt.hash(user.password,SALT)
-    
-    user.password=encryptedPassword
-   }catch(Err){
-    throw new Error(`Error in hashing ${Err}`)
-   }
-  })
   return User;
 };

@@ -23,15 +23,37 @@ const create = async (req, res) => {
 
 const signIn = async (req, res) => {
   try {
-    const response = await userService.signIn(req.body.email,req.body.password)
-    console.log(`from resposne ${response}`)
+    const response = await userService.signIn(
+      req.body.email,
+      req.body.password
+    );
+    console.log(`from resposne ${response}`);
     return res.status(201).json({
-      data:response,
-      success:true,
-      err:{},
-      message:'successfully signed in'
+      data: response,
+      success: true,
+      err: {},
+      message: "successfully signed in",
     });
-
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: `something went wrong`,
+      err: error,
+      success: false,
+      data: {},
+    });
+  }
+};
+const isAuthenticated = async (req, res) => {
+  try {
+    const token = req.headers("x-access-token");
+    const response = await userService.isAuthenticated(token);
+    return res.status(200).json({
+      success: true,
+      err: {},
+      data: response,
+      message: `User is verified`,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -44,5 +66,6 @@ const signIn = async (req, res) => {
 };
 module.exports = {
   create,
-  signIn
+  signIn,
+  isAuthenticated,
 };
